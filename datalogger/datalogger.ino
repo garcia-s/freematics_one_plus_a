@@ -14,7 +14,7 @@
 * THE SOFTWARE.
 *************************************************************************/
 #include "config.h"
-#include <FreematicsPlus.h>
+#include "FreematicsPlus.h"
 #include <SPI.h>
 #include <FS.h>
 #include <SD.h>
