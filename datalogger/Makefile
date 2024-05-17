@@ -2,7 +2,7 @@
 
 
 compile:
-	arduino-cli compile -b esp32:esp32:esp32 --libraries ./libraries
+	arduino-cli compile -b esp32:esp32:esp32:DebugLevel=verbose --libraries ../libraries
 
 upload:
 	arduino-cli upload -b esp32:esp32:esp32 --port /dev/ttyUSB0

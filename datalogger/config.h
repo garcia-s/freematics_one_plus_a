@@ -54,4 +54,4 @@
 // motion detection
 #define WAKEUP_MOTION_THRESHOLD 0.3 /* G */
 // minimum loop time
-#define MIN_LOOP_TIME 100 /* ms */
+#define MIN_LOOP_TIME 200 /* ms */

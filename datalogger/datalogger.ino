@@ -13,16 +13,14 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 *************************************************************************/
-#include "config.h"
-#include "FreematicsPlus.h"
 #include <SPI.h>
 #include <FS.h>
 #include <SD.h>
 #include <SPIFFS.h>
 #include <httpd.h>
+#include "config.h"
+#include <FreematicsPlus.h>
 #include "datalogger.h"
-#include <cstdio>
-
 
 // states
 #define STATE_STORE_READY 0x1
@@ -91,7 +89,7 @@ class SerialDataOutput : public FileLogger
     void write(const char* buf, byte len)
     {
 #if ENABLE_SERIAL_OUT
-        Serial.println(buf);
+        Serial.print(buf);
 #endif
     }
 };
@@ -231,7 +229,7 @@ public:
       if (!checkState(STATE_GPS_FOUND)) {
         Serial.print("CELL GNSS:");
         if (cellInit()) {
-          Serial.println("OK");
+tor         Serial.println("OK");
           if (!gd) gd = new GPS_DATA;
           memset(gd, 0, sizeof(GPS_DATA));
           setState(STATE_CELL_GPS_FOUND);
@@ -269,7 +267,7 @@ public:
         if (lastGPStime == gd->time) return;
 
         store.setTimestamp(millis());
-        store.log(PID_GPS_DATE, gd->date);
+        store.write(gd->date);
         store.log(PID_GPS_TIME, gd->time);
         store.logFloat(PID_GPS_LATITUDE, gd->lat);
         store.logFloat(PID_GPS_LONGITUDE, gd->lng);
@@ -994,6 +992,6 @@ void loop()
     if (ts < MIN_LOOP_TIME) delay(MIN_LOOP_TIME - ts);
 #endif
 #endif
-
     processBLE(0);
+    store.flush();
 }
