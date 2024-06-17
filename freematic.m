@@ -1,8 +1,13 @@
-T = readtable("1.csv");
-Tfiltered = T;
 
-plot(T.ts,T.accy);
-hold on;
+
+clear;clc;close all
+disp('INICIO')
+
+%% LECTURA DE DATOS
+[filename, pathname] = uigetfile('*.*');
+filename = fullfile(pathname, filename); 
+T = readtable(filename);
+Tfiltered = T;
 
 
 function ret = fillWithZero(n) 
@@ -14,7 +19,7 @@ end
 function ret = fillWithFirst(n) 
     f = n(find(~isnan(n), 1 ));
     n(isnan(n)) = f;
-    ret = n;
+        ret = ns
 end
 
 function ret = getColors(n, minv, maxv)
@@ -25,20 +30,32 @@ function ret = getColors(n, minv, maxv)
     ret = cd;
 end
 
-j
+Tfiltered.accy = Tfiltered.accy + 30
 Tfiltered.lat = fillWithFirst(Tfiltered.lat);
 Tfiltered.long = fillWithFirst(Tfiltered.long);
 Tfiltered.kmh = fillWithZero(Tfiltered.kmh);
 Tfiltered.accx = fillWithZero(Tfiltered.accx);
+Tfiltered.accy = fillWithZero(Tfiltered.accy);
 
-ts = downsample(Tfiltered.ts,10);
-lat = downsample(Tfiltered.lat,10);
-long = downsample(Tfiltered.long, 10);
-kmh = downsample(Tfiltered.kmh, 10);
-accx = downsample(abs(Tfiltered.accx), 10);
+ts = downsample(Tfiltered.ts,20);
+lat = downsample(Tfiltered.lat,20);
+long = downsample(Tfiltered.long, 20);
+kmh = downsample(Tfiltered.kmh, 20);
+accx = downsample(abs(Tfiltered.accx), 20);
+accy = downsample(Tfiltered.accy, 20);
 
 
+figure;
+plot(ts, kmh);
+title("Tiempo vs Velocidad");
 
+figure;
+plot(ts, accy);
+
+figure;
+plot(ts, accx);
+
+figure;
 colorbar;
 caxis([0, 10]);
 mapcolors = getColors(accx, 0, 10);
@@ -49,6 +66,15 @@ drawnow;
 set(h.Edge,'ColorBinding','interpolated','ColorData',mapcolors);
 
 
+figure;
+colorbar;
+caxis([0, 10]);
+mapcolors = getColors(kmh, 0, 10);
+
+gx = geoaxes;
+h = plot(geoaxes, lat,long, 'LineWidth', 5);
+drawnow;
+set(h.Edge,'ColorBinding','interpolated','ColorData',mapcolors);
 %
 % figure;
 % subplot(2, 1, 1);
