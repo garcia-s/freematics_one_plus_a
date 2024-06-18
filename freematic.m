@@ -9,18 +9,14 @@ filename = fullfile(pathname, filename);
 T = readtable(filename);
 Tfiltered = T;
 
-
+%Funcion que llena los valores NaN con ceros
 function ret = fillWithZero(n) 
     n(isnan(n)) = 0;
     ret = n;
 end
 
-
-function ret = fillWithFirst(n) 
-    f = n(find(~isnan(n), 1 ));
-    n(isnan(n)) = f;
-        ret = ns
-end
+%trae los colores de un colormap basado en interpolacion de los valores de N 
+%con el colormap Jet, se determinan los minimos y los maximos con minv y maxv
 
 function ret = getColors(n, minv, maxv)
     cd = colormap(jet(512));
@@ -30,65 +26,104 @@ function ret = getColors(n, minv, maxv)
     ret = cd;
 end
 
-Tfiltered.accy = Tfiltered.accy + 30
-Tfiltered.lat = fillWithFirst(Tfiltered.lat);
-Tfiltered.long = fillWithFirst(Tfiltered.long);
+%Funcion que llena los NaN de un array con el valor del siguiente punto de dato encontrad
+function filledArray = fillNaNsWithNextValue(array);
+    % Function to fill NaN values with the next non-NaN value
+
+    % Input validation
+    if ~isvector(array)
+        error('Input must be a vector');
+    end
+
+    % Find indices of NaN values
+    nanIndices = find(isnan(array));
+
+    % Loop through each NaN value
+    for i = 1:length(nanIndices)
+        idx = nanIndices(i);
+        
+        % Find the next non-NaN value
+        nextIdx = find(~isnan(array(idx+1:end)), 1, 'first') + idx;
+        
+        % Handle case when no next non-NaN value exists
+        if isempty(nextIdx) || nextIdx > length(array)
+            warning('No next non-NaN value found for NaN at index %d', idx);
+            array(idx) = NaN;
+        else
+            array(idx) = array(nextIdx);
+        end
+    end
+
+    % Output the filled array
+    filledArray = array;
+end
+
+%Llenar valoresd de la tabla con valores por defecto decentes
+
+
+%Convertir el threshold del axis transversal de viaje a 0
+Tfiltered.lat = fillNaNsWithNextValue(Tfiltered.lat);
+Tfiltered.long = fillNaNsWithNextValue(Tfiltered.long);
 Tfiltered.kmh = fillWithZero(Tfiltered.kmh);
 Tfiltered.accx = fillWithZero(Tfiltered.accx);
 Tfiltered.accy = fillWithZero(Tfiltered.accy);
 
-ts = downsample(Tfiltered.ts,20);
-lat = downsample(Tfiltered.lat,20);
-long = downsample(Tfiltered.long, 20);
-kmh = downsample(Tfiltered.kmh, 20);
-accx = downsample(abs(Tfiltered.accx), 20);
-accy = downsample(Tfiltered.accy, 20);
+Tfiltered.accx = Tfiltered.accx * 0.1;
+Tfiltered.accy = Tfiltered.accy * 0.1;
 
+%Reducir el tamaño del sample para reducir el ruido
+ts = downsample(Tfiltered.ts,10);
+lat = downsample(Tfiltered.lat,10);
+long = downsample(Tfiltered.long, 10);
+kmh = downsample(Tfiltered.kmh, 10);
+accx = downsample(abs(Tfiltered.accx), 10);
+accy = downsample(abs(Tfiltered.accy), 10);
 
+%Plots
 figure;
 plot(ts, kmh);
 title("Tiempo vs Velocidad");
-
-figure;
-plot(ts, accy);
+xlabel("milisegundos");
+ylabel("km/h");
 
 figure;
 plot(ts, accx);
+title("Tiempo vs Aceleracion (Axis X)");
+xlabel("milisegundos");
+ylabel("m/s²");
 
 figure;
-colorbar;
-caxis([0, 10]);
+plot(ts, accy);
+title("Tiempo vs Aceleracion (Axis Y)");
+xlabel("milisegundos");
+ylabel("m/s²");
+
+figure;
+title("Velocidad en el recorido");
+mapcolors = getColors(kmh, 0, 5);
+h = geoplot(lat,long, 'LineWidth', 5);
+drawnow;
+set(h.Edge,'ColorBinding','interpolated','ColorData',mapcolors);
+a = colorbar;
+caxis([0, 50]);
+a.Label.String = "km/h";
+
+figure;
 mapcolors = getColors(accx, 0, 10);
-
-gx = geoaxes;
-h = plot(geoaxes, lat,long, 'LineWidth', 5);
+h = geoplot(lat,long, 'LineWidth', 5);
+title("Aceleraciones en el recorido (Axis X)");
 drawnow;
-set(h.Edge,'ColorBinding','interpolated','ColorData',mapcolors);
-
+set(h.Edge,'ColorBinding','Interpolated','ColorData',mapcolors);
+a = colorbar;
+caxis([0, 10]);
+a.Label.String = "m/s²";
 
 figure;
-colorbar;
-caxis([0, 10]);
-mapcolors = getColors(kmh, 0, 10);
-
-gx = geoaxes;
-h = plot(geoaxes, lat,long, 'LineWidth', 5);
+mapcolors = getColors(accy, 0, 3.5);
+title("Aceleraciones en el recorido (Axis Y)");
+h = geoplot(lat,long, 'LineWidth', 5);
 drawnow;
-set(h.Edge,'ColorBinding','interpolated','ColorData',mapcolors);
-%
-% figure;
-% subplot(2, 1, 1);
-% plot(Tfiltered.accy);
-% title('Original Signal');
-%
-% subplot(2, 1, 2);
-% plot(denoised_signal);
-% title('Denoised Signal');
-% C = sgolayfilt(Tfiltered.kmh,  3, 7);
-% plot(T.ts,B');
-% hold on;
-%
-%
-% plot(T.ts,C');
-% hold on;
-
+set(h.Edge,'ColorBinding','Interpolated','ColorData',mapcolors);
+a = colorbar;
+caxis([0, 4]);
+a.Label.String = "m/s²";
