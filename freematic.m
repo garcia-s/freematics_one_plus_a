@@ -9,56 +9,8 @@ filename = fullfile(pathname, filename);
 T = readtable(filename);
 Tfiltered = T;
 
-%Funcion que llena los valores NaN con ceros
-function ret = fillWithZero(n) 
-    n(isnan(n)) = 0;
-    ret = n;
-end
 
-%trae los colores de un colormap basado en interpolacion de los valores de N 
-%con el colormap Jet, se determinan los minimos y los maximos con minv y maxv
-
-function ret = getColors(n, minv, maxv)
-    cd = colormap(jet(512));
-    it = interp1(linspace(minv, maxv, length(cd)), cd, n);
-    cd = uint8(it.'*255); 
-    cd(4,:) = 255;
-    ret = cd;
-end
-
-%Funcion que llena los NaN de un array con el valor del siguiente punto de dato encontrad
-function filledArray = fillNaNsWithNextValue(array);
-    % Function to fill NaN values with the next non-NaN value
-
-    % Input validation
-    if ~isvector(array)
-        error('Input must be a vector');
-    end
-
-    % Find indices of NaN values
-    nanIndices = find(isnan(array));
-
-    % Loop through each NaN value
-    for i = 1:length(nanIndices)
-        idx = nanIndices(i);
-        
-        % Find the next non-NaN value
-        nextIdx = find(~isnan(array(idx+1:end)), 1, 'first') + idx;
-        
-        % Handle case when no next non-NaN value exists
-        if isempty(nextIdx) || nextIdx > length(array)
-            warning('No next non-NaN value found for NaN at index %d', idx);
-            array(idx) = NaN;
-        else
-            array(idx) = array(nextIdx);
-        end
-    end
-
-    % Output the filled array
-    filledArray = array;
-end
-
-%Llenar valoresd de la tabla con valores por defecto decentes
+%Llenar valores de la tabla con valores por defecto decentes
 
 
 %Convertir el threshold del axis transversal de viaje a 0
@@ -127,3 +79,46 @@ set(h.Edge,'ColorBinding','Interpolated','ColorData',mapcolors);
 a = colorbar;
 caxis([0, 4]);
 a.Label.String = "m/s²";
+
+
+
+%Funcion que llena los valores NaN con ceros
+function ret = fillWithZero(n) 
+    n(isnan(n)) = 0;
+    ret = n;
+end
+
+%trae los colores de un colormap basado en interpolacion de los valores de N 
+%con el colormap Jet, se determinan los minimos y los maximos con minv y maxv
+
+function ret = getColors(n, minv, maxv)
+    cd = colormap(jet(512));
+    it = interp1(linspace(minv, maxv, length(cd)), cd, n);
+    cd = uint8(it.'*255); 
+    cd(4,:) = 255;
+    ret = cd;
+end
+
+%Funcion que llena los NaN de un array con el valor del siguiente punto de dato encontrad
+function filledArray = fillNaNsWithNextValue(array);
+    if ~isvector(array)
+        error('Input must be a vector');
+    end
+
+    nanIndices = find(isnan(array));
+
+    for i = 1:length(nanIndices)
+        idx = nanIndices(i);
+        
+        nextIdx = find(~isnan(array(idx+1:end)), 1, 'first') + idx;
+        
+        if isempty(nextIdx) || nextIdx > length(array)
+            warning('No next non-NaN value found for NaN at index %d', idx);
+            array(idx) = NaN;
+        else
+            array(idx) = array(nextIdx);
+        end
+    end
+
+    filledArray = array;
+end
