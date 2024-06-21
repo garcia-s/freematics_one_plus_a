@@ -51,9 +51,9 @@ xlabel("milisegundos");
 ylabel("m/s²");
 
 figure;
-title("Velocidad en el recorido");
-mapcolors = getColors(kmh, 0, 5);
+mapcolors = getColors(kmh, 0, 50);
 h = geoplot(lat,long, 'LineWidth', 5);
+title("Velocidad en el recorido");
 drawnow;
 set(h.Edge,'ColorBinding','interpolated','ColorData',mapcolors);
 a = colorbar;
@@ -61,24 +61,24 @@ caxis([0, 50]);
 a.Label.String = "km/h";
 
 figure;
-mapcolors = getColors(accx, 0, 10);
+mapcolors = getColors(accx, 0, 3);
 h = geoplot(lat,long, 'LineWidth', 5);
 title("Aceleraciones en el recorido (Axis X)");
+a = colorbar;
+a.Label.String = "m/s²";
+caxis([0, 2]);
 drawnow;
 set(h.Edge,'ColorBinding','Interpolated','ColorData',mapcolors);
-a = colorbar;
-caxis([0, 10]);
-a.Label.String = "m/s²";
 
 figure;
 mapcolors = getColors(accy, 0, 3.5);
-title("Aceleraciones en el recorido (Axis Y)");
 h = geoplot(lat,long, 'LineWidth', 5);
+title("Aceleraciones en el recorido (Axis Y)");
+a = colorbar;
+a.Label.String = "m/s²";
+caxis([0, 4]);
 drawnow;
 set(h.Edge,'ColorBinding','Interpolated','ColorData',mapcolors);
-a = colorbar;
-caxis([0, 4]);
-a.Label.String = "m/s²";
 
 
 
