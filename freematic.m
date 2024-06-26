@@ -43,6 +43,9 @@ plot(ts, accx);
 title("Tiempo vs Aceleracion (Axis X)");
 xlabel("milisegundos");
 ylabel("m/s²");
+ylim([0, 4]);
+
+yline(3.5, 'r--', 'LineWidth', 2);
 
 figure;
 plot(ts, accy);
